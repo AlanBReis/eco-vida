@@ -1,11 +1,3 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #e6f2e6;
-    color: #2d6a4f;
-    margin: 0;
-    padding: 0;
-}
-
 /* Animação no header */
 header {
     background-color: #4CAF50;
@@ -14,6 +6,11 @@ header {
     font-size: 30px;
     color: white;
     animation: slideIn 2s ease-in-out;
+    width: 100%; /* Faz o header ocupar toda a largura */
+    position: fixed; /* Fixa o header no topo */
+    top: 0; /* Alinha o header ao topo da página */
+    left: 0; /* Alinha o header à esquerda da página */
+    z-index: 1000; /* Garante que o header fique acima de outros elementos */
 }
 
 @keyframes slideIn {
@@ -34,22 +31,75 @@ header h2 {
 
 main {
     margin: 20px;
+    padding-top: 80px; /* Adiciona padding ao topo para evitar sobreposição com o header fixo */
 }
 
-section {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Mudado para coluna */
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+
+    align-items: center;
+    position: relative;
+    width: 100%; /* Para ocupar a largura total */
+    max-width: 600px; /* Limitar a largura máxima */
+    padding: 20px; /* Adicionando padding ao container */
+}
+
+.auth-section {
     background-color: #d9f99d;
     border: 2px solid #2d6a4f;
     border-radius: 8px;
-    padding: 20px; /* Aumentado para dar mais espaço */
-    margin-bottom: 20px;
-}
-
-h1, h2 {
-    color: #d5ece2;
+    padding: 20px;
+    margin: 10px;
+    width: 100%; /* Alterado para ocupar 100% da largura do container */
+    height: 90%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    
 }
 
 h3 {
-    color: #2d6a4f;
+    text-align: center;
+    color: #2d6a4f; /* Ajustando a cor do título */
+}
+
+label {
+    margin: 10px 0 5px;
+    display: block;
+}
+
+input[type="text"], input[type="password"], textarea {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #2d6a4f;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+
+.button {
+    background-color: #2d6a4f;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #3a9f5c;
 }
 
 footer {
@@ -57,7 +107,7 @@ footer {
     padding: 10px;
     background-color: #2d6a4f;
     color: white;
-    position: relative;
+    position: relative; /* Mudado para relativo */
     width: 100%;
     bottom: 0;
 }
@@ -126,9 +176,13 @@ form input[type="submit"]:hover {
     background-color: #1b4332;
 }
 
-/* Responsividade para o footer */
+/* Responsividade */
 @media (max-width: 600px) {
+    .container {
+        width: 90%; /* Para dispositivos menores, ajuste a largura do container */
+    }
+    
     footer {
-        position: relative;
+        position: relative; /* Mudado para evitar sobreposição */
     }
 }
