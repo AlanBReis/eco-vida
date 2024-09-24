@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e6f2e6;
+    color: #2d6a4f;
+    margin: 0;
+    padding: 0;
+}
+
+/* Animação no header */
+header {
+    background-color: #4CAF50;
+    text-align: center;
+    padding: 20px;
+    font-size: 30px;
+    color: white;
+    animation: slideIn 2s ease-in-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+header h2 {
+    margin: 10px 0 0 0;
+    font-size: 1.5em;
+}
+
+main {
+    margin: 20px;
+}
+
+section {
+    background-color: #d9f99d;
+    border: 2px solid #2d6a4f;
+    border-radius: 8px;
+    padding: 20px; /* Aumentado para dar mais espaço */
+    margin-bottom: 20px;
+}
+
+h1, h2 {
+    color: #d5ece2;
+}
+
+h3 {
+    color: #2d6a4f;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #2d6a4f;
+    color: white;
+    position: relative;
+    width: 100%;
+    bottom: 0;
+}
+
+/* Flash messages */
+.flash {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Formulário de Comentários */
+form input[type="text"],
+form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #2d6a4f;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+form input[type="submit"] {
+    background-color: #2d6a4f;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+    background-color: #1b4332;
+}
+
+/* Comentários */
+.comment {
+    background-color: #f0fff4;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.vote {
+    margin-top: 10px;
+}
+
+.vote button {
+    background-color: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.vote button:hover {
+    background-color: #1b4332;
+}
+
+/* Responsividade para o footer */
+@media (max-width: 600px) {
+    footer {
+        position: relative;
+    }
+}
