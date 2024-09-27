@@ -29,6 +29,14 @@ header h2 {
     font-size: 1.5em;
 }
 
+h1, h2 {
+    color: #d5ece2;
+}
+
+h3 {
+    color: #2d6a4f;
+}
+
 main {
     margin: 20px;
     padding-top: 80px; /* Adiciona padding ao topo para evitar sobreposição com o header fixo */
@@ -48,11 +56,10 @@ body {
 
 .container {
     display: flex;
-
     align-items: center;
-    position: relative;
+    position: flex-end;
     width: 100%; /* Para ocupar a largura total */
-    max-width: 600px; /* Limitar a largura máxima */
+    max-width: 500px; /* Limitar a largura máxima */
     padding: 20px; /* Adicionando padding ao container */
 }
 
@@ -87,6 +94,7 @@ input[type="text"], input[type="password"], textarea {
 }
 
 
+
 .button {
     background-color: #2d6a4f;
     color: white;
@@ -107,7 +115,7 @@ footer {
     padding: 10px;
     background-color: #2d6a4f;
     color: white;
-    position: relative; /* Mudado para relativo */
+    position: fixed; 
     width: 100%;
     bottom: 0;
 }
@@ -128,11 +136,11 @@ footer {
 /* Formulário de Comentários */
 form input[type="text"],
 form textarea {
-    width: 100%;
+    width: 90%;
     padding: 10px;
     border: 1px solid #2d6a4f;
     border-radius: 4px;
-    resize: vertical;
+    margin-bottom: 15px;
 }
 
 form input[type="submit"] {
