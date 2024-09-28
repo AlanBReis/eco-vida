@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, jsonify, flash
+from flask import Flask, render_template, request, redirect, jsonify, flash, session
 import sqlite3
 from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'  # Necessário para usar flash messages
@@ -18,6 +19,16 @@ mail = Mail(app)
 def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  username TEXT UNIQUE, 
+                  password TEXT)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS posts
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  user_id INTEGER, 
+                  title TEXT, 
+                  content TEXT, 
+                  FOREIGN KEY (user_id) REFERENCES users(id))''')
     c.execute('''CREATE TABLE IF NOT EXISTS comments
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                   name TEXT, 
@@ -30,64 +41,105 @@ def init_db():
 # Inicialize o banco de dados ao iniciar o app
 init_db()
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == 'POST':
-        name = request.form['name']
-        comment = request.form['comment']
+        username = request.form['username']
+        password = generate_password_hash(request.form['password'], method='sha256')
         
-        # Salvando o comentário no banco de dados
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
-        c.execute("INSERT INTO comments (name, comment) VALUES (?, ?)", (name, comment))
+        try:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+            conn.commit()
+            flash('Registro realizado com sucesso! Faça login.', 'success')
+            return redirect('/login')
+        except sqlite3.IntegrityError:
+            flash('Nome de usuário já existe.', 'danger')
+            return redirect('/register')
+        finally:
+            conn.close()
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute("SELECT id, password FROM users WHERE username = ?", (username,))
+        user = c.fetchone()
+        
+        if user and check_password_hash(user[1], password):
+            session['user_id'] = user[0]
+            flash('Login realizado com sucesso!', 'success')
+            return redirect('/')
+        else:
+            flash('Usuário ou senha inválidos.', 'danger')
+            return redirect('/login')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash('Você saiu com sucesso.', 'success')
+    return redirect('/')
+
+@app.route('/post/new', methods=['GET', 'POST'])
+def new_post():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        user_id = session.get('user_id')
+
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", (user_id, title, content))
         conn.commit()
         conn.close()
-        
-        # Enviar notificação por e-mail
-        msg = Message("Novo Comentário no Site",
-                      sender="seu_email@gmail.com",
-                      recipients=["destinatario@gmail.com"])  # E-mail para onde será enviada a notificação
-        msg.body = f"Nome: {name}\nComentário: {comment}"
-        mail.send(msg)
 
-        flash('Comentário enviado com sucesso!', 'success')
+        flash('Post criado com sucesso!', 'success')
         return redirect('/')
-    
-    # Exibindo os comentários salvos
+
+    return render_template('new_post.html')
+
+@app.route('/post/delete/<int:post_id>', methods=['POST'])
+def delete_post(post_id):
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    # c.execute("SELECT id, name, comment, likes, dislikes FROM comments ORDER BY id DESC")
-    # comments = c.fetchall()
-    conn.close()
-    
-    # Transformar a lista de comentários em uma lista de dicionários
-    # comments = [
-    #     {"id": comment[0], "name": comment[1], "text": comment[2], "likes": comment[3], "dislikes": comment[4]}
-    #     for comment in comments
-    # ]
-
-    # Retornando uma lista de comentários vazia para teste
-    comments = []
-
-    return render_template('index.html', comments=comments)
-
-@app.route('/vote', methods=['POST'])
-def vote():
-    comment_id = request.json.get('id')
-    vote_type = request.json.get('type')  # 'like' ou 'dislike'
-    
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    if vote_type == 'like':
-        c.execute("UPDATE comments SET likes = likes + 1 WHERE id = ?", (comment_id,))
-    elif vote_type == 'dislike':
-        c.execute("UPDATE comments SET dislikes = dislikes + 1 WHERE id = ?", (comment_id,))
+    c.execute("DELETE FROM posts WHERE id = ?", (post_id,))
     conn.commit()
-    c.execute("SELECT likes, dislikes FROM comments WHERE id = ?", (comment_id,))
-    likes, dislikes = c.fetchone()
     conn.close()
-    
-    return jsonify({'likes': likes, 'dislikes': dislikes})
+
+    flash('Post excluído com sucesso!', 'success')
+    return redirect('/')
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    # Exibindo posts salvos
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("SELECT posts.id, title, content, username FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC")
+    posts = c.fetchall()
+    conn.close()
+
+    user_id = session.get('user_id')  # Obtendo o ID do usuário da sessão
+    user = None  # Inicializa a variável user como None
+
+    if user_id:
+        # Se o usuário estiver logado, busque o nome de usuário
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute("SELECT username FROM users WHERE id = ?", (user_id,))
+        user = c.fetchone()
+        conn.close()
+
+    return render_template('index.html', posts=posts, user=user)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

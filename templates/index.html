@@ -3,27 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desenvolvimentos Sustentáveis - IFPR Astorga</title>
+    <title> Eco Vida - Desenvolvimentos Sustentáveis</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- Biblioteca de animações (opcional) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
 <body>
-    <header class="animate__animated animate__fadeInDown">
-        <h1>Desenvolvimentos Sustentáveis</h1>
-        <h2>IFPR Campus Avançado Astorga</h2>
+    <header>
+        <h1> Eco Vida - Desenvolvimentos Sustentáveis</h1>
     </header>
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="flash {{ category }}">
-                {{ message }}
-              </div>
+              <div class="flash {{ category }}">{{ message }}</div>
             {% endfor %}
           {% endif %}
         {% endwith %}
         
+        {% if not user.is_authenticated %}
+        <div class="container">
+            <section class="auth-section">
+                <h3>Registrar</h3>
+                <form action="/register" method="POST">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username" name="username" required>
+                    
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                    
+                    <input type="submit" value="Registrar" class="button">
+                </form>
+            </section>
+            
+            <section class="auth-section">
+                <h3>Login</h3>
+                <form action="/login" method="POST">
+                    <label for="login_username">Usuário:</label>
+                    <input type="text" id="login_username" name="username" required>
+                    
+                    <label for="login_password">Senha:</label>
+                    <input type="password" id="login_password" name="password" required>
+                    
+                    <input type="submit" value="Login" class="button">
+                </form>
+            </section>
+        </div>
+        {% else %}
+        <section>
+            <h3>Nova Publicação</h3>
+            <form action="/post" method="POST">
+                <label for="title">Título:</label><br>
+                <input type="text" id="title" name="title" required><br><br>
+                <label for="content">Conteúdo:</label><br>
+                <textarea id="content" name="content" required></textarea><br><br>
+                <input type="submit" value="Publicar">
+            </form>
+        </section>
+        
+        <section>
+            <h3>Suas Publicações</h3>
+            {% for post in posts %}
+            <div class="post">
+                <h4>{{ post.title }}</h4>
+                <p>{{ post.content }}</p>
+                <form action="/delete/{{ post.id }}" method="POST">
+                    <input type="submit" value="Excluir">
+                </form>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
         <section>
             <h3>Soluções Sustentáveis 🚰</h3>
             <p>Trabalhamos com soluções inovadoras para promover o uso eficiente de recursos e reduzir o impacto ambiental.</p>
@@ -41,34 +90,9 @@
             <p>Incentivamos a comunidade a adotar práticas sustentáveis que, somadas, podem gerar grandes mudanças para o futuro do planeta.</p>
         </section>
         
-        <section>
-            <h3>Comentários</h3>
-            <form action="/" method="POST">
-                <label for="name">Nome:</label><br>
-                <input type="text" id="name" name="name" required><br><br>
-                <label for="comment">Comentário:</label><br>
-                <textarea id="comment" name="comment" required></textarea><br><br>
-                <input type="submit" value="Enviar Comentário">
-            </form>
-        </section>
-
-        <section>
-            <h3>Comentários Recebidos</h3>
-            {% for comment in comments %}
-            <div class="comment" id="comment-{{ comment[0] }}">
-                <p><strong>{{ comment[1] }}:</strong> {{ comment[2] }}</p>
-                <!-- <div class="vote">
-                    <button onclick="vote({{ comment[0] }}, 'like')">👍 {{ comment[3] }}</button>
-                    <button onclick="vote({{ comment[0] }}, 'dislike')">👎 {{ comment[4] }}</button>
-                </div> -->
-            </div>
-            {% endfor %}
-        </section>
     </main>
     <footer>
-        <p>&copy; 2024 IFPR Campus Avançado Astorga. Todos os direitos reservados.</p>
+        <p>&copy; 2024 Blog - Desenvolvimentos Sustentáveis</p>
     </footer>
-
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>
